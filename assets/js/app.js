@@ -20,10 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorAudio = new Audio('assets/audio/error.mp3');
 
     let isProcessing = false;
-    const CHECKIN_START = '06:45';
+    const CHECKIN_START = '';
 
-    /** Semakin kecil semakin ketat. 0.58 adalah standar yang lebih baik untuk webcam. */
-    const FACE_MATCH_THRESHOLD = 0.58;
+    /** Semakin kecil semakin ketat. Diubah ke 0.45 agar lebih presisi membedakan wajah yang mirip. */
+    const FACE_MATCH_THRESHOLD = 0.45;
 
     const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@0.22.2/weights';
 
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
             video.srcObject = stream;
         } catch (err) {
             console.error('Error accessing webcam: ', err);
-            statusText.innerText = 'Error: Kamera tidak dapat diakses.';
+            statusText.innerText = 'Kamera tidak dapat diakses.';
             statusText.style.color = 'var(--error)';
         }
     }
@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateWaitingText() {
-        statusText.innerText = `Menunggu scan kartu RFID… (Masuk mulai ${CHECKIN_START} WIB, Pulang mulai ${getTodayCheckoutHour()} WIB • Verifikasi wajah aktif)`;
+        statusText.innerText = 'Menunggu scan kartu...';
         statusText.style.color = 'var(--text-main)';
     }
 

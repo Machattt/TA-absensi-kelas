@@ -277,7 +277,7 @@ $siswa = $stmt->fetchAll();
                     <!-- Kanan: Webcam -->
                     <div>
                         <div class="form-group">
-                            <label>Ambil Foto Wajah (Self-Service)</label>
+                            <label>Ambil Foto Wajah</label>
                             <div id="webcam-container" style="position: relative; width: 100%; aspect-ratio: 4/3; background: #000; border-radius: var(--radius); overflow: hidden; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center;">
                                 <video id="siswa-webcam" autoplay muted playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
                                 <canvas id="siswa-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;"></canvas>

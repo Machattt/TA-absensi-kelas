@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $now = new DateTime('now', new DateTimeZone('Asia/Jakarta'));
         $today = $now->format('Y-m-d');
         $timeNow = $now->format('H:i:s');
-        $dayOfWeek = (int) $now->format('N'); // 1 (Mon) - 7 (Sun)
+        $dayOfWeek = (int) $now->format('N'); 
         $jamMasukMulai = '06:45:00';
         $jamPulangMulai = '15:00:00';
         try {
@@ -130,7 +130,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
 
             // Proses Foto
-            // Remove "data:image/jpeg;base64," part
             $image_parts = explode(";base64,", $photo_base64);
             $image_type_aux = explode("image/", $image_parts[0]);
             $image_type = $image_type_aux[1];

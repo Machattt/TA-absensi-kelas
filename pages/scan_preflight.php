@@ -1,7 +1,6 @@
 <?php
 /**
  * Preflight scan: cek UID terdaftar & kembalikan URL foto master untuk verifikasi wajah di browser.
- * Tidak menulis absensi — commit tetap di scan_process.php.
  */
 session_start();
 require_once '../config/database.php';

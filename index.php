@@ -4,7 +4,7 @@ require_once 'config/database.php';
 
 // --- BACKGROUND SCRIPTS: Auto-Cleanup & Auto-Alpa ---
 try {
-    // 1. Pastikan tabel pengaturan ada
+    // Pastikan tabel pengaturan ada
     $pdo->exec("CREATE TABLE IF NOT EXISTS pengaturan (
         id INT PRIMARY KEY AUTO_INCREMENT,
         jam_masuk TIME NOT NULL DEFAULT '06:45:00',
@@ -23,7 +23,7 @@ try {
     $today = date('Y-m-d');
     $timeNow = date('H:i:s');
 
-    // 2. Auto-Cleanup: Hapus foto absen > 30 hari (Jalankan 1x sehari)
+    // Hapus foto absen > 30 hari (Jalankan 1x sehari)
     if ($settings['last_cleanup'] !== $today) {
         $stmtOld = $pdo->query("SELECT id_absensi, foto_path FROM absensi WHERE foto_path IS NOT NULL AND waktu_scan < DATE_SUB(NOW(), INTERVAL 30 DAY)");
         while ($row = $stmtOld->fetch()) {
@@ -37,7 +37,7 @@ try {
         $pdo->exec("UPDATE pengaturan SET last_cleanup = '$today'");
     }
 
-    // 3. Auto-Alpa: Jam > jam_pulang (Jalankan 1x sehari)
+    // Auto-Alpa: Jam > jam_pulang (Jalankan 1x sehari)
     if ($settings['last_alpa_check'] !== $today && $timeNow > $settings['jam_pulang']) {
         // Cek apakah kolom keterangan ada, jika tidak, alter table
         $cekKolom = $pdo->query("SHOW COLUMNS FROM absensi LIKE 'keterangan'");
@@ -55,7 +55,7 @@ try {
     }
 
 } catch (PDOException $e) {
-    // Abaikan error background script agar tidak mengganggu UI
+    
 }
 // --- END BACKGROUND SCRIPTS ---
 
@@ -84,7 +84,7 @@ $currentTitle = $pageTitles[$page] ?? ucfirst($page);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Absensi RFID - <?= $currentTitle ?></title>
+    <title>Sistem Absensi Kelas 11 RPL 2- <?= $currentTitle ?></title>
     <link rel="stylesheet" href="assets/css/style.css?v=<?= time() ?>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>

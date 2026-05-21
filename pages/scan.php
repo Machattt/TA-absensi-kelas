@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
 
 <div class="card">
     <div class="card-header">
-        <h2 class="card-title">Scan RFID & Kehadiran</h2>
+        <h2 class="card-title">Scan Kehadiran Siswa</h2>
     </div>
     <div class="card-body">
         <div class="scan-container">
@@ -20,7 +20,7 @@ if (!isset($_SESSION['user_id'])) {
                 </div>
                 <div class="scan-status">
                     <p id="status-text" style="font-size: 1.1rem; font-weight: 500;">
-                        Menunggu scan kartu RFID...
+                        Menunggu scan kartu...
                     </p>
                 </div>
             </div>
@@ -34,8 +34,8 @@ if (!isset($_SESSION['user_id'])) {
                             <img src="assets/img/placeholder.png" alt="Foto Terdaftar" class="photo-compare-img" id="result-photo-master">
                         </div>
                         <div class="photo-compare-item">
-                            <div class="photo-compare-label">Foto Real-time</div>
-                            <img src="assets/img/placeholder.png" alt="Foto Real-time" class="photo-compare-img" id="result-photo-live">
+                            <div class="photo-compare-label">Foto Asli</div>
+                            <img src="assets/img/placeholder.png" alt="Foto Asli" class="photo-compare-img" id="result-photo-live">
                         </div>
                     </div>
                     
@@ -52,7 +52,6 @@ if (!isset($_SESSION['user_id'])) {
         </div>
         
         <!-- Input untuk Keyboard Emulation RFID -->
-        <!-- Autofocus dan tetap fokus jika klik sembarangan -->
         <input type="text" id="rfid-input" autocomplete="off" autofocus>
         
         <canvas id="canvas" style="display:none;"></canvas>
