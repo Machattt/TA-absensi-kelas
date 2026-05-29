@@ -1,9 +1,10 @@
 <?php
 session_start();
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/database.php';
 
 header('Content-Type: application/json');
 
+// Cek sesi login
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
     exit();
@@ -13,12 +14,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $uid = trim($_POST['uid']);
     $photo_base64 = $_POST['photo'];
 
+    // Data dari frontend harus lengkap (UID kartu sama foto wajah)
     if (empty($uid) || empty($photo_base64)) {
         echo json_encode(['status' => 'error', 'message' => 'Data tidak lengkap']);
         exit();
     }
 
     try {
+        // Pastikan kolom keterangan udah dibikin di database
         $cekKolom = $pdo->query("SHOW COLUMNS FROM absensi LIKE 'keterangan'");
         if ($cekKolom->rowCount() === 0) {
             $pdo->exec("ALTER TABLE absensi ADD COLUMN keterangan VARCHAR(255) NULL AFTER status");
@@ -33,15 +36,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $dayOfWeek = (int) $now->format('N'); 
         $jamMasukMulai = '06:45:00';
         $jamPulangMulai = '15:00:00';
-        try {
-            $stmtSet = $pdo->query("SELECT jam_masuk, jam_pulang FROM pengaturan LIMIT 1");
-            if ($set = $stmtSet->fetch()) {
-                $jamMasukMulai = $set['jam_masuk'];
-                $jamPulangMulai = $set['jam_pulang'];
-            }
-        } catch (PDOException $e) {}
 
-        // Cek apakah UID terdaftar + ambil foto master jika kolom tersedia
+        // 1. Cek Hari Libur Nasional (Kalau libur ya nggak usah absen)
+        $stmtLibur = $pdo->prepare("SELECT keterangan FROM hari_libur WHERE tanggal = ?");
+        $stmtLibur->execute([$today]);
+        if ($libur = $stmtLibur->fetch()) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => "Hari ini libur: " . htmlspecialchars($libur['keterangan']) . ". Scan ditolak."
+            ]);
+            exit();
+        }
+
+        // 2. Cek Jadwal Dinamis & Libur Mingguan (Misal sabtu minggu)
+        $stmtJadwal = $pdo->prepare("SELECT jam_masuk, jam_pulang, is_libur FROM jadwal_operasional WHERE hari = ?");
+        $stmtJadwal->execute([$dayOfWeek]);
+        if ($jadwal = $stmtJadwal->fetch()) {
+            if ($jadwal['is_libur'] == 1) {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => "Hari ini dijadwalkan sebagai hari libur. Scan ditolak."
+                ]);
+                exit();
+            }
+            $jamMasukMulai = $jadwal['jam_masuk'];
+            $jamPulangMulai = $jadwal['jam_pulang'];
+        }
+
+        // Cek apakah UID terdaftar + ambil foto master kalau kolomnya ada
         $hasFotoMaster = false;
         try {
             $cekFotoMaster = $pdo->query("SHOW COLUMNS FROM siswa LIKE 'foto_path'");
@@ -51,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         $selectFoto = $hasFotoMaster ? ", s.foto_path AS foto_master_path" : ", NULL AS foto_master_path";
-        $stmt = $pdo->prepare("SELECT s.*, k.nama_kelas{$selectFoto} FROM siswa s LEFT JOIN kelas k ON s.id_kelas = k.id_kelas WHERE s.uid_rfid = ?");
+        $stmt = $pdo->prepare("SELECT s.*{$selectFoto} FROM siswa s WHERE s.uid_rfid = ?");
         $stmt->execute([$uid]);
         $siswa = $stmt->fetch();
 
@@ -71,9 +93,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $masterPhotoUrl = $placeholderUrl;
             }
 
-            // Cek apakah sudah absen dalam 5 menit terakhir untuk mencegah scan ganda
+            // Cek apakah udah absen dalam 5 detik terakhir buat mencegah dobel scan (diturunkan untuk mempermudah demo video)
             $stmt = $pdo->prepare("SELECT id_absensi FROM absensi 
-                                   WHERE nisn = ? AND waktu_scan > DATE_SUB(NOW(), INTERVAL 5 MINUTE)");
+                                   WHERE nisn = ? AND waktu_scan > DATE_SUB(NOW(), INTERVAL 5 SECOND)");
             $stmt->execute([$nisn]);
             if ($stmt->fetch()) {
                 echo json_encode([
@@ -83,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 exit();
             }
 
-            // Cek riwayat scan hari ini untuk menentukan mode masuk/pulang
+            // Cek riwayat absen hari ini, biar ketahuan ini absen masuk atau pulang
             $stmt = $pdo->prepare("SELECT status, waktu_scan
                                    FROM absensi
                                    WHERE nisn = ? AND DATE(waktu_scan) = ?
@@ -129,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
             }
 
-            // Proses Foto
+            // Proses fotonya (dari base64 jadi file gambar beneran)
             $image_parts = explode(";base64,", $photo_base64);
             $image_type_aux = explode("image/", $image_parts[0]);
             $image_type = $image_type_aux[1];
@@ -146,13 +168,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $stmt = $pdo->prepare("INSERT INTO absensi (nisn, uid_rfid, status, foto_path, keterangan) VALUES (?, ?, ?, ?, ?)");
                 $stmt->execute([$nisn, $uid, $statusAbsensi, $db_path, '-']);
 
+
                 echo json_encode([
                     'status' => 'success',
                     'message' => $statusAbsensi === 'Pulang' ? 'Scan pulang berhasil' : 'Scan masuk berhasil',
                     'siswa' => [
                         'nisn' => $siswa['nisn'],
                         'nama_lengkap' => $siswa['nama_lengkap'],
-                        'nama_kelas' => $siswa['nama_kelas'] ?? 'Tanpa Kelas',
+                        'nama_kelas' => '11 RPL 2',
                         'foto_master_url' => $masterPhotoUrl
                     ],
                     'attendance_status' => $statusAbsensi

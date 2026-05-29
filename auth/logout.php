@@ -1,7 +1,9 @@
 <?php
-session_start();
-session_unset();
-session_destroy();
-header("Location: /absensi kelas/auth/login.php");
+session_start(); // Mulai sesi buat dihapus
+session_unset(); // Bersihin semua variabel sesi
+session_destroy(); // Hancurkan sesinya sekalian
+
+// Lempar balik ke halaman login
+header("Location: ../auth/login.php");
 exit();
 ?>

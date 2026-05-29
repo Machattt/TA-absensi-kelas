@@ -1,27 +1,27 @@
 <?php
+// Kalau belum login, lempar ke halaman login
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login.php");
     exit();
 }
 $msg = '';
 
-// Pastikan kolom foto_path ada di tabel siswa
+// Pastikan kolom foto_path ada di tabel siswa biar nggak error
 try {
     $pdo->query("SELECT foto_path FROM siswa LIMIT 1");
 } catch (PDOException $e) {
-    // Jika error (kolom tidak ada), tambahkan kolomnya
+    // Kalau error (berarti kolomnya belum ada), tambahin kolomnya otomatis
     $pdo->exec("ALTER TABLE siswa ADD COLUMN foto_path VARCHAR(255) DEFAULT NULL");
 }
 $search = trim($_GET['q'] ?? '');
 $editNisn = trim($_GET['edit'] ?? '');
 $openAddModal = isset($_GET['open']) && $_GET['open'] === 'add';
-$idKelasTetap = 1;
 $editData = null;
 $uploadsDir = realpath(__DIR__ . '/../uploads');
 
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['nisn'])) {
     $delNisn = $_GET['nisn'];
-    // Hapus foto master lama jika ada
+    // Hapus foto aslinya di folder kalau memang ada
     try {
         $stmtFoto = $pdo->prepare("SELECT foto_path FROM siswa WHERE nisn = ?");
         $stmtFoto->execute([$delNisn]);
@@ -42,6 +42,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['nisn'
     }
 }
 
+// Proses Form Tambah/Edit Siswa
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $formAction = $_POST['form_action'] ?? '';
     $nisn = trim($_POST['nisn'] ?? '');
@@ -64,15 +65,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $base64_string = $_POST['foto_base64'];
                 $data = explode(',', $base64_string);
                 if (count($data) == 2) {
-                    $decoded = base64_decode($data[1]);
+                    $decoded = base64_decode($data[1], true);
+                    if ($decoded === false) {
+                        throw new RuntimeException('Base64 decode gagal.');
+                    }
+                    // Validasi bahwa ini adalah image yang valid
+                    $finfo = new finfo(FILEINFO_MIME_TYPE);
+                    $mime = $finfo->buffer($decoded);
+                    $allowed = ['image/jpeg', 'image/png', 'image/webp'];
+                    if (!in_array($mime, $allowed)) {
+                        throw new RuntimeException('Format foto tidak didukung. Gunakan JPG/PNG/WebP.');
+                    }
                     $safeId = preg_replace('/[^a-zA-Z0-9_-]+/', '_', $nisn);
-                    $fileName = $safeId . '.jpg';
+                    $fileName = $safeId . '_' . time() . '.jpg';
                     $destPath = realpath(__DIR__ . '/../uploads') . '/' . $fileName;
-                    if (file_put_contents($destPath, $decoded)) {
-                        $fotoMasterPath = 'uploads/' . $fileName;
-                    } else {
+                    if (file_put_contents($destPath, $decoded) === false) {
                         throw new RuntimeException('Gagal menyimpan foto Base64.');
                     }
+                    $fotoMasterPath = 'uploads/' . $fileName;
                 }
             } elseif (isset($_FILES['foto_master']) && is_array($_FILES['foto_master']) && $_FILES['foto_master']['error'] !== UPLOAD_ERR_NO_FILE) {
                 if ($_FILES['foto_master']['error'] !== UPLOAD_ERR_OK) {
@@ -118,11 +128,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if ($hasFotoMaster) {
-                    $stmt = $pdo->prepare("INSERT INTO siswa (nisn, nama_lengkap, uid_rfid, jenis_kelamin, foto_path, id_kelas) VALUES (?, ?, ?, ?, ?, ?)");
-                    $stmt->execute([$nisn, $nama, $uid, $jk, $fotoMasterPath, $idKelasTetap]);
+                    $stmt = $pdo->prepare("INSERT INTO siswa (nisn, nama_lengkap, uid_rfid, jenis_kelamin, foto_path) VALUES (?, ?, ?, ?, ?)");
+                    $stmt->execute([$nisn, $nama, $uid, $jk, $fotoMasterPath]);
                 } else {
-                    $stmt = $pdo->prepare("INSERT INTO siswa (nisn, nama_lengkap, uid_rfid, jenis_kelamin, id_kelas) VALUES (?, ?, ?, ?, ?)");
-                    $stmt->execute([$nisn, $nama, $uid, $jk, $idKelasTetap]);
+                    $stmt = $pdo->prepare("INSERT INTO siswa (nisn, nama_lengkap, uid_rfid, jenis_kelamin) VALUES (?, ?, ?, ?)");
+                    $stmt->execute([$nisn, $nama, $uid, $jk]);
                 }
                 $msg = "<div class='alert alert-success'>Data siswa berhasil ditambahkan.</div>";
             } elseif ($formAction === 'edit') {
@@ -136,29 +146,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if ($hasFotoMaster && $fotoMasterPath !== null) {
-                    // Hapus foto lama sebelum update
+                    // Hapus foto lama sebelum ganti yang baru
                     try {
                         $stmtOldFoto = $pdo->prepare("SELECT foto_path FROM siswa WHERE nisn = ?");
                         $stmtOldFoto->execute([$oldNisn]);
                         $oldFotoData = $stmtOldFoto->fetch();
                         if ($oldFotoData && !empty($oldFotoData['foto_path']) && $oldFotoData['foto_path'] !== '-') {
                             $oldPathFile = realpath(__DIR__ . '/../') . '/' . ltrim($oldFotoData['foto_path'], '/\\');
-                            if (file_exists($oldPathFile)) {
+                            if (file_exists($oldPathFile) && $oldFotoData['foto_path'] !== $fotoMasterPath) {
                                 @unlink($oldPathFile);
                             }
                         }
                     } catch (PDOException $e) { }
 
-                    $stmt = $pdo->prepare("UPDATE siswa SET nisn = ?, nama_lengkap = ?, uid_rfid = ?, jenis_kelamin = ?, foto_path = ?, id_kelas = ? WHERE nisn = ?");
-                    $stmt->execute([$nisn, $nama, $uid, $jk, $fotoMasterPath, $idKelasTetap, $oldNisn]);
+                    $stmt = $pdo->prepare("UPDATE siswa SET nisn = ?, nama_lengkap = ?, uid_rfid = ?, jenis_kelamin = ?, foto_path = ? WHERE nisn = ?");
+                    $stmt->execute([$nisn, $nama, $uid, $jk, $fotoMasterPath, $oldNisn]);
                 } else {
-                    $stmt = $pdo->prepare("UPDATE siswa SET nisn = ?, nama_lengkap = ?, uid_rfid = ?, jenis_kelamin = ?, id_kelas = ? WHERE nisn = ?");
-                    $stmt->execute([$nisn, $nama, $uid, $jk, $idKelasTetap, $oldNisn]);
+                    $stmt = $pdo->prepare("UPDATE siswa SET nisn = ?, nama_lengkap = ?, uid_rfid = ?, jenis_kelamin = ? WHERE nisn = ?");
+                    $stmt->execute([$nisn, $nama, $uid, $jk, $oldNisn]);
                 }
                 $msg = "<div class='alert alert-success'>Data siswa berhasil diperbarui.</div>";
             }
         } catch (PDOException $e) {
-            $msg = "<div class='alert alert-error'>Gagal menyimpan data. NISN/UID kemungkinan sudah terdaftar.</div>";
+            $msg = "<div class='alert alert-error'>Gagal menyimpan data. NISN atau UID kemungkinan sudah terdaftar.</div>";
         } catch (RuntimeException $e) {
             $msg = "<div class='alert alert-error'>" . htmlspecialchars($e->getMessage()) . "</div>";
         }
@@ -171,8 +181,9 @@ if ($editNisn !== '') {
     $editData = $stmtEdit->fetch();
 }
 
-$query = "SELECT nisn, nama_lengkap, jenis_kelamin FROM siswa WHERE id_kelas = ?";
-$params = [$idKelasTetap];
+// Ambil data siswa dari database buat ditampilin
+$query = "SELECT nisn, nama_lengkap, jenis_kelamin FROM siswa WHERE 1=1";
+$params = [];
 if ($search !== '') {
     $query .= " AND (nama_lengkap LIKE ? OR nisn LIKE ?)";
     $likeSearch = '%' . $search . '%';
@@ -279,9 +290,9 @@ $siswa = $stmt->fetchAll();
                         <div class="form-group">
                             <label>Ambil Foto Wajah</label>
                             <div id="webcam-container" style="position: relative; width: 100%; aspect-ratio: 4/3; background: #000; border-radius: var(--radius); overflow: hidden; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center;">
-                                <video id="siswa-webcam" autoplay muted playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+                                <video id="siswa-webcam" autoplay muted playsinline style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);"></video>
                                 <canvas id="siswa-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;"></canvas>
-                                <img id="siswa-preview" style="display: none; width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 20;" />
+                                <img id="siswa-preview" style="display: none; width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 20; transform: scaleX(-1);" />
                                 <div id="webcam-loading" style="position: absolute; color: white; font-weight: bold; z-index: 5;">Memuat Kamera...</div>
                             </div>
                             <div style="display: flex; gap: 0.5rem;">
@@ -348,9 +359,9 @@ $siswa = $stmt->fetchAll();
                         <div class="form-group">
                             <label>Ganti Foto Wajah (Webcam)</label>
                             <div id="edit-webcam-container" style="position: relative; width: 100%; aspect-ratio: 4/3; background: #000; border-radius: var(--radius); overflow: hidden; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center;">
-                                <video id="edit-siswa-webcam" autoplay muted playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+                                <video id="edit-siswa-webcam" autoplay muted playsinline style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);"></video>
                                 <canvas id="edit-siswa-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;"></canvas>
-                                <img id="edit-siswa-preview" style="display: none; width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 20;" />
+                                <img id="edit-siswa-preview" style="display: none; width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 20; transform: scaleX(-1);" />
                                 <div id="edit-webcam-loading" style="position: absolute; color: white; font-weight: bold; z-index: 5;">Memuat Kamera...</div>
                             </div>
                             <div style="display: flex; gap: 0.5rem;">

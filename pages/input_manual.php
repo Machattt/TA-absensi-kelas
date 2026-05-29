@@ -1,4 +1,5 @@
 <?php
+// Cek status login
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login.php");
     exit();
@@ -6,29 +7,31 @@ if (!isset($_SESSION['user_id'])) {
 
 $msg = '';
 
-// Ensure keterangan column exists for manual notes.
+// Pastiin kolom keterangan ada di database buat nyimpen catatan manual
 try {
     $cekKolom = $pdo->query("SHOW COLUMNS FROM absensi LIKE 'keterangan'");
     if ($cekKolom->rowCount() === 0) {
         $pdo->exec("ALTER TABLE absensi ADD COLUMN keterangan VARCHAR(255) NULL AFTER status");
     }
 } catch (PDOException $e) {
-    // Keep page usable even if column migration fails.
+    // Biarin tetep jalan aja kalau semisal gagal update kolomnya
 }
 
+// Kalau ada form yang di-submit
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nisn = $_POST['nisn'] ?? '';
     $status = $_POST['status'] ?? '';
     $keterangan = trim($_POST['keterangan'] ?? '');
     $allowedStatus = ['Hadir', 'Izin', 'Sakit'];
 
+    // Validasi status
     if (!in_array($status, $allowedStatus, true)) {
         $msg = "<div class='alert alert-error'>Status manual tidak valid.</div>";
     } elseif ($status !== 'Hadir' && $keterangan === '') {
         $msg = "<div class='alert alert-error'>Keterangan wajib diisi untuk status Izin atau Sakit.</div>";
     } else {
     
-        // Check if already attended today
+        // Cek dulu, udah absen belum hari ini?
         $today = date('Y-m-d');
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM absensi WHERE nisn = ? AND DATE(waktu_scan) = ?");
         $stmt->execute([$nisn, $today]);
@@ -37,10 +40,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $msg = "<div class='alert alert-error'>Siswa ini sudah memiliki data absensi hari ini.</div>";
         } else {
             try {
+                // Simpan datanya sebagai input manual
                 $statusSimpan = $status . ' (Manual)';
                 $keteranganSimpan = $keterangan !== '' ? $keterangan : '-';
                 $stmt = $pdo->prepare("INSERT INTO absensi (nisn, uid_rfid, status, keterangan, foto_path) VALUES (?, ?, ?, ?, ?)");
                 $stmt->execute([$nisn, 'MANUAL', $statusSimpan, $keteranganSimpan, '-']);
+                
+                // FITUR: Log activity dihapus
+                
+                // FITUR: Trigger notifikasi dihapus
+                
                 $msg = "<div class='alert alert-success'>Absensi manual berhasil disimpan!</div>";
             } catch(PDOException $e) {
                 $msg = "<div class='alert alert-error'>Terjadi kesalahan saat menyimpan data.</div>";
@@ -49,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Get all students for dropdown
+// Ambil semua data siswa buat dropdown pilihan
 $stmt = $pdo->query("SELECT nisn, nama_lengkap FROM siswa ORDER BY nama_lengkap ASC");
 $siswa = $stmt->fetchAll();
 ?>

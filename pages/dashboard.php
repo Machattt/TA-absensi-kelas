@@ -1,23 +1,28 @@
 <?php
+// Kalau belum login, usir ke halaman login
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login.php");
     exit();
 }
 
-// Get stats
+
+
+// Ambil total seluruh siswa buat statistik
 $stmt = $pdo->query("SELECT COUNT(*) FROM siswa");
 $total_siswa = $stmt->fetchColumn();
 
-$today = date('Y-m-d');
+$today = date('Y-m-d'); // Tanggal hari ini
+
+// Hitung berapa siswa yang udah hadir (unik berdasarkan NISN) hari ini
 $stmt = $pdo->prepare("SELECT COUNT(DISTINCT nisn) FROM absensi WHERE DATE(waktu_scan) = ?");
 $stmt->execute([$today]);
 $hadir_hari_ini = $stmt->fetchColumn();
 
-// Calculate new stats
+// Hitung sisanya (yang belum hadir atau alpa) dan persentase kehadiran
 $belum_hadir = max(0, $total_siswa - $hadir_hari_ini);
 $persentase = $total_siswa > 0 ? round(($hadir_hari_ini / $total_siswa) * 100, 1) : 0;
 
-// Get latest attendance activities (Real-time Feed)
+// Ambil 10 aktivitas absen terbaru hari ini buat ditampilin di feed (Real-time feed)
 $stmt = $pdo->prepare("SELECT s.nama_lengkap, a.waktu_scan, a.status 
                        FROM absensi a
                        JOIN siswa s ON a.nisn = s.nisn
@@ -26,6 +31,9 @@ $stmt = $pdo->prepare("SELECT s.nama_lengkap, a.waktu_scan, a.status
                        LIMIT 10");
 $stmt->execute([$today]);
 $feed = $stmt->fetchAll();
+
+// Notifications and stats
+// (Sekarang di-fetch secara global dari index.php)
 ?>
 
 <!-- Welcome Banner -->

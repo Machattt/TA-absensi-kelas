@@ -1,17 +1,20 @@
 <?php
 /**
- * Preflight scan: cek UID terdaftar & kembalikan URL foto master untuk verifikasi wajah di browser.
+ * Preflight scan: Buat ngecek UID yang discan itu terdaftar atau tidak,
+ * terus balikin URL foto aslinya buat dibandingin sama muka pas absen.
  */
 session_start();
 require_once '../config/database.php';
 
 header('Content-Type: application/json');
 
+// Harus login dulu pastinya
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
     exit();
 }
 
+// Cuma nerima request POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['status' => 'error', 'message' => 'Invalid Request']);
     exit();
@@ -23,10 +26,11 @@ if ($uid === '') {
     exit();
 }
 
-$placeholderUrl = 'assets/img/placeholder.png';
+$placeholderUrl = 'assets/img/placeholder.png'; // Foto default kalau nggak ada
 
 try {
     $hasFotoMaster = false;
+    // Cek dulu, tabel siswanya punya kolom foto_path nggak?
     try {
         $cekFotoMaster = $pdo->query("SHOW COLUMNS FROM siswa LIKE 'foto_path'");
         $hasFotoMaster = $cekFotoMaster->rowCount() > 0;
@@ -44,9 +48,8 @@ try {
     }
 
     $stmt = $pdo->prepare(
-        "SELECT s.nisn, s.nama_lengkap, s.foto_path, k.nama_kelas
+        "SELECT s.nisn, s.nama_lengkap, s.foto_path
          FROM siswa s
-         LEFT JOIN kelas k ON s.id_kelas = k.id_kelas
          WHERE s.uid_rfid = ?"
     );
     $stmt->execute([$uid]);
@@ -82,7 +85,7 @@ try {
         'siswa' => [
             'nisn' => $siswa['nisn'],
             'nama_lengkap' => $siswa['nama_lengkap'],
-            'nama_kelas' => $siswa['nama_kelas'] ?? 'Tanpa Kelas'
+            'nama_kelas' => '11 RPL 2'
         ]
     ]);
 } catch (PDOException $e) {

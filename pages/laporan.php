@@ -1,36 +1,27 @@
 <?php
+// Cek login dulu ya
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login.php");
     exit();
 }
 
+// Ambil filter tanggal dari URL, kalau kosong pakai hari ini
 $dari_tanggal = isset($_GET['dari_tanggal']) ? $_GET['dari_tanggal'] : date('Y-m-d');
 $sampai_tanggal = isset($_GET['sampai_tanggal']) ? $_GET['sampai_tanggal'] : date('Y-m-d');
-$id_kelas = isset($_GET['id_kelas']) ? $_GET['id_kelas'] : '1'; // Default ke ID 1 (11 RPL 2)
 
-// Get all classes for dropdown
-$stmtKelas = $pdo->query("SELECT * FROM kelas ORDER BY nama_kelas ASC");
-$kelasList = $stmtKelas->fetchAll();
-
-// Build Query
-$query = "SELECT a.*, s.nama_lengkap, s.jenis_kelamin, k.nama_kelas 
+// Siapin query buat narik data absensi beserta nama siswanya (hanya 1 kelas)
+$query = "SELECT a.*, s.nama_lengkap, s.jenis_kelamin 
           FROM absensi a 
           JOIN siswa s ON a.nisn = s.nisn 
-          LEFT JOIN kelas k ON s.id_kelas = k.id_kelas 
-          WHERE DATE(a.waktu_scan) >= ? AND DATE(a.waktu_scan) <= ?";
+          WHERE DATE(a.waktu_scan) >= ? AND DATE(a.waktu_scan) <= ?
+          ORDER BY a.waktu_scan ASC";
 $params = [$dari_tanggal, $sampai_tanggal];
 
-if ($id_kelas !== '') {
-    $query .= " AND s.id_kelas = ?";
-    $params[] = $id_kelas;
-}
-
-$query .= " ORDER BY a.waktu_scan ASC";
 $stmt = $pdo->prepare($query);
 $stmt->execute($params);
 $absensi = $stmt->fetchAll();
 
-// Calculate statistics
+// Hitung statistik absensinya
 $total_hadir = 0;
 $total_pulang = 0;
 $total_alpa = 0;
@@ -48,17 +39,6 @@ foreach ($absensi as $row) {
     elseif ($row['status'] === 'Alpa') $total_alpa++;
     elseif (strpos($row['status'], 'Izin') !== false) $total_izin++;
     elseif (strpos($row['status'], 'Sakit') !== false) $total_sakit++;
-}
-
-// Determine class name for filter display
-$nama_kelas_filter = 'Semua Kelas';
-if ($id_kelas !== '') {
-    foreach ($kelasList as $k) {
-        if ($k['id_kelas'] == $id_kelas) {
-            $nama_kelas_filter = $k['nama_kelas'];
-            break;
-        }
-    }
 }
 ?>
 
@@ -81,8 +61,6 @@ if ($id_kelas !== '') {
             <input type="date" name="sampai_tanggal" value="<?= htmlspecialchars($sampai_tanggal) ?>">
         </div>
         
-        <input type="hidden" name="id_kelas" value="1">
-        
         <button type="submit" class="btn btn-primary btn-search">
             <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             Cari Data
@@ -104,7 +82,7 @@ if ($id_kelas !== '') {
 <div class="card print-area" id="pdf-content" style="background: white; padding: 20px;">
     <!-- Print Specific Header -->
     <div class="print-header" style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid var(--primary); padding-bottom: 15px;">
-        <h1 style="color: var(--primary); font-size: 20px; margin-bottom: 5px;">LAPORAN ABSENSI <?= htmlspecialchars(strtoupper($nama_kelas_filter)) ?></h1>
+        <h1 style="color: var(--primary); font-size: 20px; margin-bottom: 5px;">LAPORAN ABSENSI KELAS 11 RPL 2</h1>
         <p style="margin: 2px 0; font-size: 13px;">Periode: <?= date('d/m/Y', strtotime($dari_tanggal)) ?> s/d <?= date('d/m/Y', strtotime($sampai_tanggal)) ?></p>
         <p style="margin: 2px 0; font-size: 13px;">Dicetak pada: <?= date('d/m/Y, H:i:s') ?></p>
     </div>
@@ -116,7 +94,7 @@ if ($id_kelas !== '') {
                     <th>Tanggal</th>
                     <th>ID Kartu</th>
                     <th>Nama</th>
-                    <th>Kelas</th>
+                    <th>Jenis Kelamin</th>
                     <th>Foto Bukti</th>
                     <th>Masuk</th>
                     <th>Pulang</th>
@@ -150,7 +128,7 @@ if ($id_kelas !== '') {
                     <td><?= date('d/m/Y', strtotime($row['waktu_scan'])) ?></td>
                     <td><?= htmlspecialchars($row['uid_rfid']) ?></td>
                     <td><?= htmlspecialchars($row['nama_lengkap']) ?></td>
-                    <td><?= htmlspecialchars($row['nama_kelas'] ?? 'Tanpa Kelas') ?></td>
+                    <td><?= htmlspecialchars($row['jenis_kelamin']) ?></td>
                     <td>
                         <?php if(!empty($row['foto_path']) && file_exists($row['foto_path']) && $row['foto_path'] != '-'): ?>
                             <a href="#" onclick="showPhotoPopup('<?= htmlspecialchars($row['foto_path']) ?>', '<?= htmlspecialchars(addslashes($row['nama_lengkap'])) ?>'); return false;">
@@ -287,4 +265,10 @@ function showPhotoPopup(imageUrl, studentName) {
         }
     });
 }
+
 </script>
+<style>
+@media print {
+    .print-hide { display: none !important; }
+}
+</style>

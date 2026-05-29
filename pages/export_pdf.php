@@ -2,26 +2,37 @@
 session_start();
 require_once '../config/database.php';
 
+// Kalau belum login, ke halaman login
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login.php");
     exit();
 }
 
+header('Content-Type: text/html; charset=UTF-8');
+
+// Ambil rentang tanggal dari URL, kalau nggak ada pakai hari ini
 $dari_tanggal = isset($_GET['dari_tanggal']) ? $_GET['dari_tanggal'] : date('Y-m-d');
 $sampai_tanggal = isset($_GET['sampai_tanggal']) ? $_GET['sampai_tanggal'] : date('Y-m-d');
 
-// Get attendance data
-$query = "SELECT a.*, s.nama_lengkap, s.jenis_kelamin, k.nama_kelas 
+// Validasi format tanggal biar nggak ada error
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dari_tanggal) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $sampai_tanggal)) {
+    die('Format tanggal tidak valid!');
+}
+if (strtotime($dari_tanggal) > strtotime($sampai_tanggal)) {
+    die('Tanggal mulai harus sebelum tanggal selesai!');
+}
+
+// Ambil data absensi dari database
+$query = "SELECT a.*, s.nama_lengkap, s.jenis_kelamin 
           FROM absensi a 
           JOIN siswa s ON a.nisn = s.nisn 
-          LEFT JOIN kelas k ON s.id_kelas = k.id_kelas 
           WHERE DATE(a.waktu_scan) >= ? AND DATE(a.waktu_scan) <= ?
           ORDER BY a.waktu_scan ASC";
 $stmt = $pdo->prepare($query);
 $stmt->execute([$dari_tanggal, $sampai_tanggal]);
 $absensi = $stmt->fetchAll();
 
-// Calculate statistics
+// Hitung statistik buat ringkasan di PDF
 $total_hadir = 0;
 $total_pulang = 0;
 $total_alpa = 0;
@@ -144,7 +155,7 @@ foreach ($absensi as $row) {
 </head>
 <body>
     <div class="container" id="pdf-content">
-        <h1>LAPORAN ABSENSI SISWA</h1>
+        <h1>LAPORAN ABSENSI SISWA KELAS 11 RPL 2</h1>
         
         <div class="header">
             <p><strong>Kelas 11 RPL 2</strong></p>
@@ -186,6 +197,7 @@ foreach ($absensi as $row) {
                     <th>No</th>
                     <th>Tanggal</th>
                     <th>Nama Siswa</th>
+                    <th>Jenis Kelamin</th>
                     <th>Jam Masuk</th>
                     <th>Jam Pulang</th>
                     <th>Status</th>
@@ -214,6 +226,7 @@ foreach ($absensi as $row) {
                     <td><?= $no ?></td>
                     <td><?= date('d/m/Y', strtotime($row['waktu_scan'])) ?></td>
                     <td><?= htmlspecialchars($row['nama_lengkap']) ?></td>
+                    <td><?= htmlspecialchars($row['jenis_kelamin']) ?></td>
                     <td><?= $jam_masuk ?></td>
                     <td><?= $jam_pulang ?></td>
                     <td><?= $status_text ?></td>
@@ -225,7 +238,7 @@ foreach ($absensi as $row) {
                 } else {
                 ?>
                 <tr>
-                    <td colspan="7" style="text-align: center; color: #999;">Tidak ada data absensi untuk periode ini</td>
+                    <td colspan="8" style="text-align: center; color: #999;">Tidak ada data absensi untuk periode ini</td>
                 </tr>
                 <?php
                 }
@@ -234,7 +247,7 @@ foreach ($absensi as $row) {
         </table>
         
         <div class="footer">
-            <p>Sistem Informasi Absensi Siswa Kelas 11 RPL 2 - <?= date('Y') ?></p>
+            <p>Informasi Absensi Siswa Kelas 11 RPL 2 - <?= date('Y') ?></p>
         </div>
     </div>
 

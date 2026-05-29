@@ -1,4 +1,5 @@
 <?php
+// Kalau belum login, lempar ke halaman login
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login.php");
     exit();
@@ -14,9 +15,10 @@ if (!isset($_SESSION['user_id'])) {
             
             <!-- Kamera & Scan Area -->
             <div>
-                <div class="webcam-wrapper" id="webcam-container">
-                    <video id="webcam-video" autoplay playsinline></video>
-                    <div class="scan-overlay" id="scan-overlay"></div>
+                <div class="webcam-wrapper" id="webcam-container" style="position: relative;">
+                    <video id="webcam-video" autoplay playsinline style="transform: scaleX(-1);"></video>
+                    <canvas id="live-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none;"></canvas>
+                    <div class="scan-overlay" id="scan-overlay" style="z-index: 10;"></div>
                 </div>
                 <div class="scan-status">
                     <p id="status-text" style="font-size: 1.1rem; font-weight: 500;">
@@ -30,12 +32,12 @@ if (!isset($_SESSION['user_id'])) {
                 <div class="student-card" id="result-card">
                     <div class="photo-compare" id="photo-compare" style="display: none;">
                         <div class="photo-compare-item">
-                            <div class="photo-compare-label">Foto Terdaftar</div>
-                            <img src="assets/img/placeholder.png" alt="Foto Terdaftar" class="photo-compare-img" id="result-photo-master">
+                            <div class="photo-compare-label">Foto Tersimpan</div>
+                            <img src="assets/img/placeholder.png" alt="Foto Tersimpan" class="photo-compare-img" id="result-photo-master">
                         </div>
                         <div class="photo-compare-item">
-                            <div class="photo-compare-label">Foto Asli</div>
-                            <img src="assets/img/placeholder.png" alt="Foto Asli" class="photo-compare-img" id="result-photo-live">
+                            <div class="photo-compare-label">Foto Saat Absen</div>
+                            <img src="assets/img/placeholder.png" alt="Foto Saat Absen" class="photo-compare-img" id="result-photo-live">
                         </div>
                     </div>
                     
@@ -59,7 +61,7 @@ if (!isset($_SESSION['user_id'])) {
 </div>
 
 <script>
-    // Memastikan input RFID selalu fokus
+    // Memastikan input RFID selalu fokus biar gampang nge-scan
     document.addEventListener('click', function() {
         document.getElementById('rfid-input').focus();
     });

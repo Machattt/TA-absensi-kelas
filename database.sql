@@ -11,21 +11,13 @@ CREATE TABLE IF NOT EXISTS users (
 INSERT IGNORE INTO users (username, password) VALUES 
 ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
 
-CREATE TABLE IF NOT EXISTS kelas (
-    id_kelas INT AUTO_INCREMENT PRIMARY KEY,
-    nama_kelas VARCHAR(50) NOT NULL UNIQUE
-);
-
-INSERT IGNORE INTO kelas (id_kelas, nama_kelas) VALUES (1, '11 RPL 2');
 
 CREATE TABLE IF NOT EXISTS siswa (
     nisn VARCHAR(50) PRIMARY KEY,
     nama_lengkap VARCHAR(100) NOT NULL,
     uid_rfid VARCHAR(50) NOT NULL UNIQUE,
     jenis_kelamin ENUM('L', 'P') NOT NULL,
-    foto_path VARCHAR(255) NULL,
-    id_kelas INT DEFAULT 1,
-    FOREIGN KEY (id_kelas) REFERENCES kelas(id_kelas)
+    foto_path VARCHAR(255) NULL
 );
 
 CREATE TABLE IF NOT EXISTS absensi (
@@ -38,3 +30,5 @@ CREATE TABLE IF NOT EXISTS absensi (
     foto_path VARCHAR(255) NOT NULL,
     FOREIGN KEY (nisn) REFERENCES siswa(nisn) ON DELETE CASCADE
 );
+
+
