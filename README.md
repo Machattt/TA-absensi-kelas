@@ -17,6 +17,11 @@ Sistem ini dibuat untuk membantu proses pencatatan kehadiran siswa secara digita
 Selain itu, sistem ini juga dilengkapi dengan proses verifikasi wajah menggunakan kamera untuk membantu mengurangi praktik titip absen 
 yang masih sering terjadi di lingkungan sekolah.
 
+![PHP](https://img.shields.io/badge/PHP-Native-777BB4?style=flat-square&logo=php)
+![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?style=flat-square&logo=javascript)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?style=flat-square&logo=bootstrap)
+![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?style=flat-square&logo=mysql)
+
 ---
 
 ## Tujuan Pengembangan
