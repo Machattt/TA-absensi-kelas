@@ -1,7 +1,7 @@
-# 📸 ABSEN REK
+# 📸 ABSEN REK!
 
 Selamat datang di ABSEN REK! 👋
-Repository ini berisi source code untuk Sistem Informasi Absensi Berbasis <br> Web dengan integrasi RFID dan Webcam.
+Repository ini berisi source code untuk Sistem Informasi Absensi Berbasis Web dengan integrasi RFID dan Webcam.
 
 ---
 
