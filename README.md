@@ -1,81 +1,84 @@
-# ABSEN REK!
-## Selamat datang di ABSEN REK! 👋
-## Repository ini berisi source code untuk Sistem Informasi Absensi Berbasis Web 
-   dengan integrasi RFID dan Webcam.
+**Sistem Informasi Absensi Berbasis Web dengan integrasi RFID dan Webcam**
 
-
-### Deskripsi Singkat Proyek
-ABSEN REK! adalah Sistem Informasi Absensi Berbasis Web dengan integrasi RFID dan Webcam yang dikembangkan sebagai proyek tugas akhir.
-Sistem ini dibuat untuk membantu proses pencatatan kehadiran siswa secara digital serta memudahkan guru dalam memantau data absensi.
-Selain itu, sistem ini juga dilengkapi dengan proses verifikasi wajah menggunakan kamera untuk membantu mengurangi praktik titip absen 
-yang masih sering terjadi di lingkungan sekolah.
-
-## Tujuan Pengembangan
-
-- Membantu proses absensi siswa secara digital.
-- Mempermudah pengelolaan data kehadiran siswa.
-- Mengurangi praktik titip absen melalui verifikasi wajah.
-- Menyediakan laporan absensi yang terstruktur dan mudah diakses.
+Selamat datang di ABSEN REK! Repository ini berisi source code lengkap untuk sistem absensi digital yang dikembangkan sebagai proyek tugas akhir.
 
 ---
 
-## Fitur Utama
+## Tentang Proyek
 
-- Integrasi RFID dan Webcam untuk proses absensi siswa.
-- Verifikasi wajah otomatis menggunakan Face Recognition.
-- Pencegahan titip absen melalui pencocokan wajah dengan data master.
-- Dashboard statistik dan aktivitas absensi secara real-time.
-- Sistem Auto-Alpa berdasarkan jadwal operasional sekolah.
-- Validasi keterlambatan secara otomatis.
-- Sistem scan masuk dan scan pulang dalam satu terminal absensi.
-- Manajemen data siswa beserta foto dan identitas RFID.
-- Input manual untuk status hadir, izin, dan sakit.
-- Laporan kehadiran siswa dengan filter tanggal.
-- Export laporan ke format PDF dan Excel.
+ABSEN REK adalah solusi digital untuk pencatatan kehadiran siswa yang mengintegrasikan teknologi RFID dan face recognition. Sistem ini dirancang untuk:
+
+- Mempermudah proses absensi siswa secara real-time
+- Mengurangi praktik titip absen melalui verifikasi wajah
+- Membantu guru dalam pengelolaan dan analisis data kehadiran
+- Menyediakan laporan absensi yang terstruktur dan mudah diakses
 
 ---
 
-## Fitur Pendukung
+## 🎯 Tujuan Pengembangan
 
-- Login dan Logout Administrator/Guru.
-- Session Timeout otomatis setelah 30 menit tidak aktif.
-- Pencegahan Double Scan pada hari yang sama.
-- Pencatatan status Hadir, Terlambat, Pulang, Izin, Sakit, dan Alpa.
-- Kalender Hari Libur.
-- Notifikasi visual menggunakan SweetAlert2.
-- Notifikasi audio otomatis.
-- Penyimpanan foto bukti absensi.
-- Pengelolaan data siswa melalui operasi CRUD lengkap.
+- Membantu proses absensi siswa secara digital
+- Mempermudah pengelolaan data kehadiran siswa
+- Mengurangi praktik titip absen melalui verifikasi wajah
+- Menyediakan laporan absensi yang terstruktur dan mudah diakses
 
 ---
 
-## Tools & Teknologi
+## 🚀 Fitur Utama
 
-### Frontend
-- HTML5
-- CSS3
-- JavaScript (Vanilla JS)
+| Fitur | Deskripsi |
+|-------|-----------|
+| Integrasi RFID & Webcam | Scan kartu dan capture wajah siswa |
+| Face Recognition | Verifikasi wajah otomatis menggunakan teknologi AI |
+| Pencegahan Titip Absen | Pencocokan wajah dengan data master yang tersimpan |
+| Dashboard Real-time | Statistik dan aktivitas absensi secara live |
+| Auto-Alpa | Sistem otomatis menandai alpa berdasarkan jadwal |
+| Validasi Keterlambatan | Deteksi dan pencatatan waktu keterlambatan |
+| Scan Masuk/Pulang | Terminal absensi dengan dual entry |
+| Manajemen Siswa | CRUD lengkap untuk data siswa |
+| Input Manual | Pencatatan status hadir, izin, sakit |
+| Laporan Fleksibel | Filter dan export laporan ke PDF/Excel |
+
+---
+
+## ✨ Fitur Pendukung
+
+- Login dan Logout Administrator/Guru
+- Session Timeout otomatis setelah 30 menit tidak aktif
+- Pencegahan Double Scan pada hari yang sama
+- Pencatatan status: Hadir, Terlambat, Pulang, Izin, Sakit, Alpa
+- Kalender Hari Libur
+- Notifikasi visual menggunakan SweetAlert2
+- Notifikasi audio otomatis
+- Penyimpanan foto bukti absensi
+- Pengelolaan data siswa melalui operasi CRUD lengkap
+
+---
+
+## Teknologi
+
+**Frontend**
+- HTML5, CSS3
+- JavaScript (Vanilla)
 - Bootstrap
 - Face API.js
 - SweetAlert2
 - html2pdf.js
 
-### Backend
+**Backend**
 - PHP Native
 - PDO (PHP Data Objects)
 
-### Database
+**Database**
 - MySQL / MariaDB
 
-### Alat & Perangkat
+**Hardware**
 - RFID Reader
 - Webcam
 
 ---
 
-## Cara Instalasi
-
-<br>
+## Instalasi
 
 ### 1. Clone Repository
 
@@ -86,33 +89,32 @@ cd ABSEN-REK
 
 ### 2. Siapkan Database
 
-Buat database baru. <br>
-Import file SQL yang tersedia pada folder database.
+1. Buat database baru
+2. Import file SQL yang tersedia di folder `database`
 
 ### 3. Konfigurasi Database
 
-Sesuaikan file koneksi database dengan server lokal Anda.
+Sesuaikan file koneksi database (`config/database.php`) dengan server lokal Anda.
 
 ### 4. Jalankan Aplikasi
 
-Aktifkan Apache dan MySQL, lalu akses aplikasi melalui browser.
+Aktifkan Apache dan MySQL, lalu akses aplikasi:
 
-**URL:** `http://localhost/absensi%20kelas/`
+```
+http://localhost/absensi%20kelas/
+```
 
-**Akun Default (Guru):**
-- Username: `guru`
-- Password: `password`
-
-<br>
+> **Akun Default (Guru)**  
+> Username: `guru`  
+> Password: `password`
 
 ---
 
 ## 👩‍💻 Pengembang
 
-Navyza Marcha Vega
-| XI | RPL 2
+**Navyza Marcha Vega**  
+Kelas XI RPL 2
 
-<br>
+---
 
-ABSEN REK merupakan proyek tugas akhir yang dikembangkan untuk membantu digitalisasi proses absensi siswa 
-serta mendukung pengelolaan data kehadiran yang lebih terstruktur di lingkungan sekolah.
+ABSEN REK merupakan proyek tugas akhir yang dikembangkan untuk membantu digitalisasi proses absensi siswa serta mendukung pengelolaan data kehadiran yang lebih terstruktur di lingkungan sekolah.
