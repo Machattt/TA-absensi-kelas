@@ -54,7 +54,6 @@ Selain itu, sistem ini juga dilengkapi dengan proses verifikasi wajah menggunaka
 - Notifikasi visual menggunakan SweetAlert2.
 - Notifikasi audio otomatis.
 - Penyimpanan foto bukti absensi.
-- Tampilan Kiosk Mode layar penuh.
 - Pengelolaan data siswa melalui operasi CRUD lengkap.
 
 ---
