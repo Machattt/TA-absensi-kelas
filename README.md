@@ -17,11 +17,6 @@ Sistem ini dibuat untuk membantu proses pencatatan kehadiran siswa secara digita
 Selain itu, sistem ini juga dilengkapi dengan proses verifikasi wajah menggunakan kamera untuk membantu mengurangi praktik titip absen 
 yang masih sering terjadi di lingkungan sekolah.
 
-![PHP](https://img.shields.io/badge/PHP-Native-777BB4?style=flat-square&logo=php)
-![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?style=flat-square&logo=javascript)
-![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?style=flat-square&logo=bootstrap)
-![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?style=flat-square&logo=mysql)
-
 ---
 
 ## Tujuan Pengembangan
@@ -68,22 +63,23 @@ yang masih sering terjadi di lingkungan sekolah.
 
 ## Teknologi
 
-**Frontend**
-- HTML5, CSS3
-- JavaScript (Vanilla)
-- Bootstrap
-- Face API.js
-- SweetAlert2
-- html2pdf.js
+*### Frontend
+![HTML5](https://img.shields.io/badge/HTML5-E34C26?style=flat-square&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=flat-square&logo=bootstrap&logoColor=white)
+![Face API](https://img.shields.io/badge/Face%20API-4A90E2?style=flat-square)
+![SweetAlert2](https://img.shields.io/badge/SweetAlert2-FC8019?style=flat-square)
+![html2pdf](https://img.shields.io/badge/html2pdf-FF6B6B?style=flat-square)
 
-**Backend**
-- PHP Native
-- PDO (PHP Data Objects)
+### Backend
+![PHP](https://img.shields.io/badge/PHP-777BB4?style=flat-square&logo=php&logoColor=white)
+![PDO](https://img.shields.io/badge/PDO-336791?style=flat-square)
 
-**Database**
-- MySQL / MariaDB
+### Database
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)
 
-**Hardware**
+### Hardware
 - RFID Reader
 - Webcam
 
