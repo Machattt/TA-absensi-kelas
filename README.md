@@ -109,7 +109,7 @@ Aktifkan Apache dan MySQL, lalu akses aplikasi melalui browser.
 ## 👨‍💻 Pengembang
 
 Navyza Marcha Vega
-XI RPL 2
+| XI | RPL 2
 
 <br>
 
