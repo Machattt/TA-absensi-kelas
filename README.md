@@ -1,5 +1,8 @@
 # ABSEN REK!
-## Sistem Informasi Absensi Berbasis Web dengan Integrasi RFID dan Webcam
+## Selamat datang di ABSEN REK! 👋
+<br>
+Repository ini berisi source code untuk Sistem Informasi Absensi Berbasis Web 
+dengan integrasi RFID dan Webcam.
 
 ### Deskripsi Singkat Proyek
 ABSEN REK! adalah Sistem Informasi Absensi Berbasis Web dengan integrasi RFID dan Webcam yang dikembangkan sebagai proyek tugas akhir.
