@@ -130,7 +130,6 @@ $pageTitles = [
     'user' => 'Pengaturan Akun Guru',
     'input_manual' => 'Entri Absensi Manual',
     'pengaturan' => 'Konfigurasi Jam Operasional',
-    'pengaturan' => 'Konfigurasi Jam Operasional'
 ];
 $currentTitle = $pageTitles[$page] ?? ucfirst($page);
 ?>
