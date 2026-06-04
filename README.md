@@ -1,5 +1,10 @@
 # 📸 ABSEN REK
 
+Selamat datang di ABSEN REK! 👋
+Repository ini berisi source code lengkap untuk Sistem Informasi Absensi Berbasis Web dengan integrasi RFID dan Webcam.
+
+---
+
 ## 📖 Deskripsi Singkat
 
 ABSEN REK adalah Sistem Informasi Absensi Berbasis Web dengan integrasi RFID dan Webcam yang dikembangkan sebagai proyek tugas akhir.
@@ -102,11 +107,17 @@ Sesuaikan file koneksi database dengan server lokal Anda.
 
 Aktifkan Apache dan MySQL, lalu akses aplikasi melalui browser.
 
+**URL:** `http://localhost/absensi%20kelas/`
+
+**Akun Default (Guru):**
+- Username: `guru`
+- Password: `password`
+
 <br>
 
 ---
 
-## 👨‍💻 Pengembang
+## 👩‍💻 Pengembang
 
 Navyza Marcha Vega
 | XI | RPL 2
