@@ -19,7 +19,7 @@ yang masih sering terjadi di lingkungan sekolah.
 
 ---
 
-## 🎯 Tujuan Pengembangan
+## Tujuan Pengembangan
 
 - Membantu proses absensi siswa secara digital
 - Mempermudah pengelolaan data kehadiran siswa
@@ -28,7 +28,7 @@ yang masih sering terjadi di lingkungan sekolah.
 
 ---
 
-## 🚀 Fitur Utama
+## Fitur Utama
 
 | Fitur | Deskripsi |
 |-------|-----------|
@@ -45,17 +45,19 @@ yang masih sering terjadi di lingkungan sekolah.
 
 ---
 
-## ✨ Fitur Pendukung
+## Fitur Pendukung
 
-- Login dan Logout Administrator/Guru
-- Session Timeout otomatis setelah 30 menit tidak aktif
-- Pencegahan Double Scan pada hari yang sama
-- Pencatatan status: Hadir, Terlambat, Pulang, Izin, Sakit, Alpa
-- Kalender Hari Libur
-- Notifikasi visual menggunakan SweetAlert2
-- Notifikasi audio otomatis
-- Penyimpanan foto bukti absensi
-- Pengelolaan data siswa melalui operasi CRUD lengkap
+| Fitur | Deskripsi |
+|-------|-----------|
+| Login & Logout | Administrator dan Guru dapat login/logout |
+| Session Timeout | Logout otomatis setelah 30 menit tidak aktif |
+| Pencegahan Double Scan | Cegah scanning kartu yang sama di hari yang sama |
+| Pencatatan Status | Hadir, Terlambat, Pulang, Izin, Sakit, Alpa |
+| Kalender Hari Libur | Kelola jadwal libur sekolah |
+| Notifikasi Visual | Alert dan feedback menggunakan SweetAlert2 |
+| Notifikasi Audio | Suara otomatis untuk konfirmasi scan |
+| Penyimpanan Foto | Bukti absensi tersimpan untuk verifikasi |
+| Manajemen Data Siswa | CRUD lengkap dengan foto dan identitas RFID |
 
 ---
 
